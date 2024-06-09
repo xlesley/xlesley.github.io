@@ -1,0 +1,8 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>All Test Atomic Algolia - Xu&#39;s Blog</title>
+        <link>http://localhost:1313/posts/test-atomic-algolia/</link>
+        <description>All Test Atomic Algolia | Xu&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>chenran.xu@outlook.com (Chenran Xu)</managingEditor>
+            <webMaster>chenran.xu@outlook.com (Chenran Xu)</webMaster><lastBuildDate>Sun, 09 Jun 2024 01:29:57 -0700</lastBuildDate><atom:link href="http://localhost:1313/posts/test-atomic-algolia/" rel="self" type="application/rss+xml" /></channel>
+</rss>
