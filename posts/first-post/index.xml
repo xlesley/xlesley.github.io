@@ -1,0 +1,8 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>All First Post - Xu&#39;s Blog</title>
+        <link>http://localhost:1313/posts/first-post/</link>
+        <description>All First Post | Xu&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>chenran.xu@outlook.com (Chenran Xu)</managingEditor>
+            <webMaster>chenran.xu@outlook.com (Chenran Xu)</webMaster><lastBuildDate>Sat, 08 Jun 2024 15:15:46 -0700</lastBuildDate><atom:link href="http://localhost:1313/posts/first-post/" rel="self" type="application/rss+xml" /></channel>
+</rss>
