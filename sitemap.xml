@@ -2,7 +2,13 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
-            <loc>http://example.org/posts/</loc><lastmod>2024-06-09T01:29:57-07:00</lastmod></url><url>
-            <loc>http://example.org/</loc><lastmod>2024-06-09T01:29:57-07:00</lastmod></url><url>
-            <loc>http://example.org/categories/</loc></url><url>
-            <loc>http://example.org/tags/</loc></url></urlset>
+            <loc>http://localhost:1313/categories/</loc><lastmod>2024-06-08T19:27:53-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/tags/cse416/</loc><lastmod>2024-06-08T19:27:53-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/posts/kaggle_hw5/</loc><lastmod>2024-06-08T19:27:53-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/categories/note/</loc><lastmod>2024-06-08T19:27:53-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/posts/</loc><lastmod>2024-06-08T19:27:53-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/tags/</loc><lastmod>2024-06-08T19:27:53-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/</loc><lastmod>2024-06-08T19:27:53-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/posts/first-post/</loc><lastmod>2024-06-08T15:15:46-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/categories/misc/</loc><lastmod>2024-06-08T15:15:46-07:00</lastmod></url><url>
+            <loc>http://localhost:1313/tags/test/</loc><lastmod>2024-06-08T15:15:46-07:00</lastmod></url></urlset>
