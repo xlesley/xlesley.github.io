@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title> - Xu&#39;s Blog</title><meta name="Description" content="This is my cool site"><meta property="og:url" content="http://localhost:1313/notes/learning-reflection-0/">
+  <meta property="og:site_name" content="Xu&#39;s Blog">
+  <meta property="og:title" content="Xu&#39;s Blog">
+  <meta property="og:description" content="Learning Reflection 0 Summary This week we learned about what is machine learning, and went through a case study on regression about house price. We also learned about the linear regression model, and how to evaluate the performance of the model by using the loss function, MSE, etc.
+Concepts Machine Learning Machine Learning (ML) is the study of algorithms that improve their performance at some task with experience. Tom Mitchell (1998): a computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="notes">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Xu&#39;s Blog">
+  <meta name="twitter:description" content="Learning Reflection 0 Summary This week we learned about what is machine learning, and went through a case study on regression about house price. We also learned about the linear regression model, and how to evaluate the performance of the model by using the loss function, MSE, etc.
+Concepts Machine Learning Machine Learning (ML) is the study of algorithms that improve their performance at some task with experience. Tom Mitchell (1998): a computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.">
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/notes/learning-reflection-0/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/notes\/learning-reflection-0\/"
+        },"genre": "notes","wordcount":  1248 ,
+        "url": "http:\/\/localhost:1313\/notes\/learning-reflection-0\/","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "xxxx"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="fixed" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Xu&#39;s Blog">Xu&#39;s Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Xu&#39;s Blog">Xu&#39;s Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><div class="search-dropdown desktop">
+        <div id="search-dropdown-desktop"></div>
+    </div>
+    <div class="search-dropdown mobile">
+        <div id="search-dropdown-mobile"></div>
+    </div><main class="main">
+                <div class="container"><div class="page single special"><h1 class="single-title animate__animated animate__pulse animate__faster"></h1><div class="content" id="content"><h1 id="learning-reflection-0">Learning Reflection 0</h1>
+<h2 id="summary">Summary</h2>
+<p>This week we learned about what is machine learning, and went through a case study on regression about house price. We also learned about the linear regression model, and how to evaluate the performance of the model by using the loss function, MSE, etc.</p>
+<h2 id="concepts">Concepts</h2>
+<h3 id="machine-learning">Machine Learning</h3>
+<hr>
+<ul>
+<li><strong>Machine Learning (ML)</strong> is the study of algorithms that improve their performance at some <strong>task</strong> with <strong>experience</strong>.</li>
+<li>Tom Mitchell (1998): a computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.</li>
+</ul>
+<p><strong>Supervised learning</strong></p>
+<ul>
+<li>The machine learning task of learning a function that maps an input to an output based on example input-output pairs.
+<ul>
+<li>Training data is labeled, where inputs are paired with correct outputs</li>
+<li>Infers a mapping function from the inputs to outputs</li>
+<li>Examples: image classification, stock price predictions</li>
+</ul>
+</li>
+</ul>
+<p><strong>Unsupervised Learning</strong></p>
+<ul>
+<li>Analyze and cluster unlabeled datasets</li>
+<li>Discover patterns or data categorization without the need for human intervention</li>
+<li>Examples: DNA clustering, anomaly detection</li>
+</ul>
+<p><strong>Reinforcement Learning</strong></p>
+<ul>
+<li>Agents learn the optimal behaviors to obtain maximum reward through interactions with the environment and observations of how they responds.</li>
+</ul>
+<p>![Screenshot 2023-03-31 at 17.58.54](/Users/lesleyxu/Desktop/Screenshot 2023-03-31 at 17.58.54.png)</p>
+<h3 id="regression"><strong>Regression</strong></h3>
+<hr>
+<p>A supervised learning task where the outputs are continuous values.</p>
+<p>* Note: We used the term Polynomial Regression to describe a different ML model. It turns out doing linear regression with polynomial features is equivalent to polynomial regression. You commonly hear polynomial regression referred to as either a new model or the same model with different features, so we introduce both.</p>
+<h4 id="linear-regression">Linear regression</h4>
+<p>A regression model where we fit a linear function between feature variables of the training examples.</p>
+<p>Assume we have a simple model with one feature, where we establish a linear relationship between the area of a house $i$ and its price: $y_i = w_0 + w_ix_i + \epsilon_i$</p>
+<ul>
+<li>
+<p>$w_0, w_1$ are the parameters of our model that need to be learned</p>
+</li>
+<li>
+<p>$w_0$ is the intercept / <strong>bias</strong>, representing the starting price of a house</p>
+</li>
+<li>
+<p>$w_1$ is the slope / <strong>weight</strong> associated with feature ”area of a house”</p>
+</li>
+</ul>
+<h4 id="polynomial-regression">Polynomial Regression</h4>
+<ul>
+<li>
+<p><strong>Features</strong> are the values we select or compute from the data inputs to put into our model.</p>
+</li>
+<li>
+<p><strong>Feature extraction</strong> is the process of turning the data into features.</p>
+</li>
+</ul>
+<h4 id="feature">Feature</h4>
+<ul>
+<li>An attribute that we’re selecting for our model</li>
+<li>Can come from the original dataset, or through some transformations (*<strong>feature extraction*</strong>)</li>
+</ul>
+<h4 id="parameter">Parameter</h4>
+<p>The weight or bias associated with a feature. The goal of machine learning is to adjust the weights to optimize the loss functions on training data.</p>
+<p><strong>Dataset</strong></p>
+<p>${(x_i, y_i)}^{n}_{i=1}$ where $x \in\mathbb{R}^{d}, y \in\mathbb{R}^d$</p>
+<p><strong>Feature Extraction</strong></p>
+<p>$h(x) :\mathbb{R}^d \rightarrow \mathbb{R}^D$</p>
+<p>$h(x) = (h_0(x), h_1(x),&hellip;h_D(x))$</p>
+<p><strong>Regression Model</strong></p>
+<p>$y = f(x) + \epsilon = \sum^{D}<em>{j = 0}w</em>{j}h_{j}(x) + \epsilon = w^{T}h(x)+\epsilon$</p>
+<p><strong>Quality Metric</strong></p>
+<p>$MSE(w) = \frac{1}{n}\sum^{n}<em>{i = 1}(y_i-w^{T}x</em>{i})^2$</p>
+<p><strong>Predictor</strong></p>
+<p>$\hat{w} = \mathop{argmin}\limits_{w}MSE(w)$</p>
+<p>Low error = Low cost = Better predictor</p>
+<p><strong>ML Algorithm</strong></p>
+<p>Optimized using Gradient Descent</p>
+<p><strong>Prediction</strong></p>
+<p>$\hat{y} = \hat{w}^{T}h(x)$</p>
+<h3 id="mean-squared-error-mse">Mean squared error (MSE)</h3>
+<hr>
+<p>MSE is a function with inputs $w_0$, $w_1$, different settings have different MSE for a dataset</p>
+<p>$\begin{equation}MSE(w_0, w_1) = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y_i})^2 = \frac{1}{n}\sum_{i=1}^{n}(w_0-w_{1}x_{i})^2\end{equation}$</p>
+<p><strong>Minimizing Cost</strong></p>
+<p>$\begin{equation}\hat{w_0}, \hat{w_1} = argminMSE(w_0, w_1) = argmin\frac{1}{n}\sum_{i=1}^{n}(w_0-w_{1}x_{i})^2\end{equation}$</p>
+<p>If we choose the model that minimizes MSE on the data it learned from, we are just choosing the model that can memorize, not the one that generalizes well.</p>
+<h3 id="loss-function">Loss function</h3>
+<hr>
+<p>A function that computes the distance between the predicted output from a machine learning model and the actual output.</p>
+<p><strong>Generalized Loss Function:</strong></p>
+<p>$L(y, f_{\hat{w}}(x))\leftarrow MSE, MAE$</p>
+<p><strong>True Error:</strong></p>
+<p>$\begin{equation}\mathop{\mathbb{E}}\limits_{(x,y)}[L(y, f_{\hat{w}}(x))] = \sum_{x}\sum_{y}L(y, f_{\hat{w}}(x))(p(x,y)\end{equation}$</p>
+<p>Where $\mathbb{E}$ represents all possible (x,y) pairs</p>
+<p><strong>Machine learning model:</strong> An algorithm that combs through an amount of data to find patterns, make predictions, or generate insights</p>
+<p><strong>Optimization algorithm:</strong> An algorithm used to minimize the loss during training. The most common one is <strong>Gradient Descent</strong>.</p>
+<h3 id="assessing-performance">Assessing Performance</h3>
+<hr>
+<ul>
+<li>True error
+<ul>
+<li>What we really care about is the true error, or how well a model perform on unseen data in the wild, but we can’t know that without having an infinite amount of data! We will use the test set to estimate the true error.</li>
+</ul>
+</li>
+<li>Train set</li>
+<li>Test Set</li>
+<li>Train error / Test error
+<ul>
+<li>What happens to training error as we increase model complexity?
+<ul>
+<li>Start with the simplest model (a constant function)</li>
+<li>End with a very high degree polynomial</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>True error
+<ul>
+<li>What happens to true error as we increase model complexity?
+<ul>
+<li>Start with the simplest model (a constant function)</li>
+<li>End with a very high degree polynomial</li>
+</ul>
+</li>
+<li>True function: theoretical</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>Low training error != a good model</p>
+</li>
+<li>
+<p>To avoid memorizing, need to test on data we didn’t train on</p>
+<ul>
+<li>Training set to train on and a test set for evaluation</li>
+<li>Test set is a stand-in for all future data</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Note: The train and test set need to be randomly split in order for the test set to be truly reflective of data in the real world. Call the error on the test set the test error for a model $\hat{f}$ :</p>
+</blockquote>
+<ul>
+<li>Model complexity
+<ul>
+<li>Model complexity and training error</li>
+<li>Model complexity and true error</li>
+<li>Underfitting/overfitting
+<ul>
+<li><strong>Overfitting</strong> happens when we too closely match the training data and fail to generalize.</li>
+<li>Overfitting occurs when you train a predictor $\hat{w}$ but there exists another predictor $w&rsquo;$ from the same model class such that:</li>
+<li>$error_{true}(w) &lt; error_{true}(\hat{w})$</li>
+<li>$error_{train}(w&rsquo;) &gt; error_{train}(w&rsquo;)$</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h3 id="bias-variance-tradeoff">Bias-variance tradeoff</h3>
+<hr>
+<ol>
+<li><strong>Bias</strong></li>
+</ol>
+<ul>
+<li>
+<p>Average predictor, averaging the lines</p>
+</li>
+<li>
+<p>A model that is too simple fails to fit the signal. In some sense, this signifies a fundamental limitation of the model we are using to fail to fit the signal. We call this type of error <strong>bias</strong>.</p>
+</li>
+<li>
+<p><strong>Bias</strong> is the difference between the average prediction of our model and the expected value which we are trying to predict.</p>
+</li>
+<li>
+<p>Low complexity (simple) models tend to have high bias.</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Variance</strong></li>
+</ol>
+<ul>
+<li>
+<p>A model that is too complicated for the task overly fits to small fluctuations. The flexibility of the complicated model makes it capable of memorizing answers rather than learning general patterns. This contributes to the error as <strong>variance</strong>.</p>
+</li>
+<li>
+<p><strong>Variance</strong> is the variability in the model prediction, meaning how much the predictions will change if a different training dataset is used.</p>
+</li>
+<li>
+<p>High complexity models tend to have high variance.</p>
+</li>
+<li>
+<p>High variance models tend to have low bias: on average, match the true model perfectly.</p>
+</li>
+</ul>
+<ol start="3">
+<li><strong>Irreducible Error</strong></li>
+</ol>
+<ul>
+<li><strong>Irreducible error</strong> is the one that we can’t avoid or possibly eliminate. They are caused by elements outside of our control, such as noise from observations.</li>
+</ul>
+<p>Tradeoff between bias and variance:</p>
+<ul>
+<li>Simple models: High bias + Low variance</li>
+<li>Complex models: Low bias + High variance</li>
+</ul>
+<p><strong>Error = Biased squared + Variance + Irreducible Error</strong></p>
+<p>$$\begin{equation}\mathbb{E}[(y-\hat{f}(x))^2] = bias[\hat{f}(x)]^2 + var(\hat{f}(x)) + \sigma^{2}_{\epsilon}\end{equation}$$</p>
+<h4 id="validation-set">Validation Set</h4>
+<!-- raw HTML omitted -->
+<p><strong>Pros</strong></p>
+<ul>
+<li>
+<p>Easy to describe and implement</p>
+</li>
+<li>
+<p>Pretty fast</p>
+<ul>
+<li>Only requires training a model and predicting on the validation set for each complexity of interest</li>
+</ul>
+</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>
+<p>Have to sacrifice even more training data</p>
+</li>
+<li>
+<p>Prone to overfitting*</p>
+</li>
+</ul>
+<h4 id="cross-validation">Cross-Validation</h4>
+<p>For a given model complexity, train it k times. Each time use all but one chunk and use that left out chunk to determine the validation error.</p>
+<!-- raw HTML omitted -->
+<p><strong>Pros</strong></p>
+<ul>
+<li>
+<p>Prevent overfitting: By training the model on multiple folds instead of only 1 training set, this learns the model with the best generalization capabilities.</p>
+</li>
+<li>
+<p>Don’t have to actually get rid of any training data!</p>
+</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>
+<p>Slow. For each model selection, we have to train k times</p>
+</li>
+<li>
+<p>Very computationally expensive</p>
+</li>
+</ul>
+<h2 id="uncertainties">Uncertainties</h2>
+<ul>
+<li>How can we make decisions on balancing the tradeoffs between bias and variance in future practices of model training?</li>
+</ul>
+</div></div></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.127.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">xxxx</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":50},"comment":{},"search":{"highlightTag":"em","maxResultLength":10,"noResultsFound":"No results found","snippetLength":30}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

@@ -1,0 +1,18 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Xu&#39;s Blog</title>
+        <link>https://https://xlesley.github.io/</link>
+        <description>This is my cool site</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>chenran.xu@outlook.com (Chenran Xu)</managingEditor>
+            <webMaster>chenran.xu@outlook.com (Chenran Xu)</webMaster><lastBuildDate>Sat, 08 Jun 2024 15:15:46 -0700</lastBuildDate>
+            <atom:link href="https://https://xlesley.github.io/index.xml" rel="self" type="application/rss+xml" />
+        <item>
+    <title>First Post</title>
+    <link>https://https://xlesley.github.io/posts/first-post/</link>
+    <pubDate>Sat, 08 Jun 2024 15:15:46 -0700</pubDate>
+    <author>Author</author>
+    <guid>https://https://xlesley.github.io/posts/first-post/</guid>
+    <description><![CDATA[Hello World✨]]></description>
+</item>
+</channel>
+</rss>
