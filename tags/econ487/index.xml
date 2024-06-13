@@ -1,0 +1,16 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>ECON487 - Tag - Xu&#39;s Blog</title>
+        <link>http://localhost:1313/tags/econ487/</link>
+        <description>ECON487 - Tag - Xu&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>chenran.xu@outlook.com (Chenran Xu)</managingEditor>
+            <webMaster>chenran.xu@outlook.com (Chenran Xu)</webMaster><lastBuildDate>Wed, 12 Jun 2024 23:17:21 -0700</lastBuildDate><atom:link href="http://localhost:1313/tags/econ487/" rel="self" type="application/rss+xml" /><item>
+    <title>Coursework</title>
+    <link>http://localhost:1313/posts/coursework/</link>
+    <pubDate>Wed, 12 Jun 2024 23:17:21 -0700</pubDate>
+    <author>Author</author>
+    <guid>http://localhost:1313/posts/coursework/</guid>
+    <description><![CDATA[]]></description>
+</item>
+</channel>
+</rss>

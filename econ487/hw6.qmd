@@ -1,0 +1,119 @@
+---
+title: "HW6"
+output: html_document
+date: "2023-11-08"
+author: "Lesley Xu"
+---
+1.	Estimate a random forest model and compare the MSE with the same LASSO model when predicting sales.  Try to make a complicated model.  Remember that you have to install the randomForest package.
+a.	Here is some code: 
+`mydata$price <- log(mydata$price)`
+`oj.rf <- randomForest(logmove ~ ., data = mydata, ntree = 	100, keep.forest = TRUE) `
+`mydata$pred_logmove_rf = predict(oj.rf) `
+`mydata$resid2 <- 	(mydata$logmove - mydata$pred_logmove_rf)^2 `
+
+```{r 1a, message=FALSE, warning=FALSE}
+set.seed(487)
+library(randomForest)
+setwd("/Users/lesleyxu/Desktop/Past courses/23AU/ECON 487")
+oj <- read.csv("oj.csv")
+oj$price <- log(oj$price)
+train <- sample(nrow(oj), 0.8 * nrow(oj))
+oj_train_rf <- oj[train, ]
+oj_test_rf <- oj[-train, ]
+oj.rf <- randomForest(logmove ~ ., data = oj_train_rf, ntree = 100, keep.forest = TRUE)
+oj_test_rf$pred_logmove_rf <- predict(oj.rf, oj_test_rf)
+oj_test_rf$resid2 <- 	(oj_test_rf$logmove - oj_test_rf$pred_logmove_rf)^2
+```
+
+b.	Try to plot observed versus predicted using ggplot. 
+```{r 1b, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot(oj_test_rf, aes(price, color = cond)) +
+  geom_point(aes(y = oj_test_rf$logmove, color = "Observed", alpha = 0.2)) +
+  geom_point(aes(y = oj_test_rf$pred_logmove_rf, color = "Predicted", alpha = 0.2)) +
+  labs(x = "Price", y = "Logmove", color = "", alpha = 'Transperency') +
+  theme_bw()
+```
+```{r, message=FALSE, warning=FALSE}
+plot(oj.rf,
+     main = "Random Forest",
+     col = "deepskyblue3")
+```
+
+c.	Compare to your complicated LASSO model from the previous problem set for the MSE. Remember to hold out data so your random forest MSE is fair!
+
+```{r 1c, message=FALSE, warning=FALSE}
+rf_mse <- round(mean(oj_test_rf$resid2), 2)
+```
+The LASSO cv MSE is 0.36, and the random forest MSE is `r rf_mse`. 
+
+2.	We’re going to do some basic exploration with xgboost. 
+a.	Install the package xgboost and library it.
+b.	Divide the data into a training set (80% of the data) and a hold-out set (20% of the data). 
+```{r 2ab, message=FALSE, warning=FALSE}
+library(xgboost)
+library(dplyr)
+library(tidyverse)
+library(broom)
+oj_id <- oj %>%
+  mutate(id_val = row_number())
+
+oj_train_xgb <- oj_id %>% 
+  slice_sample(prop = .8)
+
+oj_test_xgb <- oj_id %>%
+  anti_join(oj_train_xgb, by = 'id_val')
+```
+
+c.	We’re going to train a model to predict logmove. To do this, we’re going to create a training and testing matrix that we can give to the package to do cross validation on. 
+i.	Use the xgb.DMatrix function to create a train and test matrix. This function takes arguments “data” (must be a matrix, so consider using the model.matrix command) and “label” (the outcome, logmove in our case).
+
+```{r 2ci, message=FALSE, warning=FALSE}
+lhs_vars <- oj %>%
+  select(-store, -week, -logmove, -price) %>%
+  colnames()
+
+reg_str <- str_c('~ ', str_c(lhs_vars,collapse = ' + '))
+
+train.X <- model.matrix(formula(reg_str), oj_train_xgb)
+test.X <- model.matrix(formula(reg_str), oj_test_xgb)
+
+train_matrix <- xgb.DMatrix(train.X, label = oj_train_xgb$logmove)
+test_matrix <- xgb.DMatrix(test.X, label = oj_test_xgb$logmove)
+```
+
+ii.	Use the xgb.cv function to do 5-fold cross-validation on our training data. We’ll just use the defaults for most of the hyperparameters. A few useful arguments:
+1.	nfold: number of folds for cross-validation
+2.	nrounds: number of training rounds (generally, we want this to be a very large number since we don’t want to be artificially stopped short of achieving a minimum)
+3.	early_stopping_rounds: if this argument is set, XGBoost will stop training if the testing error does not improve in whatever number the user puts here. This should be our stopping criterion (as opposed to hitting nrounds)
+4.	print_every_n: if you set this to, say, 100, XGBoost will report its progress every 100 iterations, instead of each iteration.
+5.	Important note: we’re not actually cross-validating or setting any of the hyperparameters that make XGBoost a powerful algorithm. If you’re curious about what other parameters you can set, inspect the documentation for this function or for the function xgboost.
+```{r 2cii, message=FALSE, warning=FALSE}
+train_xgb_cv <- xgb.cv(data = train_matrix,
+                       nfold = 5,
+                       nrounds = 10^4,
+                       early_stopping_rounds = 100,
+                       print_every_n = 100)
+```
+
+iii.	Report the training RMSE (root mean squared error) and testing RMSE from the best model. How does this compare to previous models that we’ve used (remember that you should square this to get MSE)?
+
+- The train-rmse from the best model is 0.763884+0.001398 and the test-rmse from the best model is 0.780964+0.005657. Comparing to the previous models, xgb.cv has a higher MSE of 0.61, which is worse. 
+
+iv.	Use the xgboost function to train a model on the full training data using our one cross-validated hyperparameter (the number of training iterations). To do this, find the best iteration of the cross validated model and set that as nrounds for the xgboost function.
+```{r 2civ, message=FALSE, warning=FALSE}
+train_xgb_full <- xgboost(data = train_matrix,
+                          nrounds = 22,
+                          print_every_n = 10)
+```
+
+v.	Use the predict command (the same way that we do in regression) and your testing xgb.DMatrix to assess the fit of the model on the held out data. How does the MSE compare to the MSE from cross-validation? How does it compare to prior models?
+```{r 2cv, message=FALSE, warning=FALSE}
+oj_test_xgb$pred_logmove_xgb <- predict(train_xgb_full, test_matrix)
+oj_test_xgb$resid2 <- (oj_test_xgb$logmove - oj_test_xgb$pred_logmove_xgb)^2
+
+xgb_mse <- round(mean(oj_test_xgb$resid2), 2)
+```
+
+The MSE is `r xgb_mse`. Compare to the cross-validation MSE, it is a little bit lower. Compare to the prior model MSE, it is higher because of less model complexity (did not include interaction terms). 
+

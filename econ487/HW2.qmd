@@ -1,0 +1,214 @@
+---
+title: "HW2"
+output: html_document
+date: "2023-10-11"
+author: "Lesley Xu"
+---
+
+### Empirical Section
+
+```{r set the working diretory}
+setwd("/Users/lesleyxu/Desktop/Past courses/23AU/ECON 487")
+oj <- read.csv("oj.csv")
+```
+
+#### 4) Visualizing price
+
+a.  Make a box plot of price.
+
+```{r boxplot of price}
+library(ggplot2)
+ggplot(oj, aes(factor(brand), price)) + geom_boxplot(aes(fill = brand))
+```
+
+b.  Make a box plot of log price.
+
+```{r boxplot of log price}
+ggplot(oj, aes(factor(brand), log(price))) + geom_boxplot(aes(fill = brand))
+```
+
+c.  Make a box plot of price, but separate out each brand.
+
+```{r boxplot of price separate}
+ggplot(oj, aes(factor(brand), price)) + geom_boxplot(aes(fill = brand)) +
+  facet_grid(. ~ brand)
+```
+
+d.  Do the same for log price.
+
+```{r boxplot of log price separate}
+ggplot(oj, aes(factor(brand), log(price))) + geom_boxplot(aes(fill = brand)) +
+  facet_grid(. ~ brand)
+```
+
+e.  What do these graphs tell you about the variation in price? Why do the log plots look different? Do you find them more/less informative?
+
+- The graphs tell me that the prices distribution of dominicks is lowest among the three brands, and tropicana is the highest among those three. Comparing to the original plot, the log plots has all the outliers in the lower bound. When graph the log plots, the data is compressed, causing the effect of spreading out values that were concentrated in the lower range and pulling together values that were widely dispersed in the upper range. Therefore the outliers in the original data become less prominent, and the distribution can appear more symmetrical. The log plot provides more information because the data points are standardized, making it easier for me to compare these three brands in the same scope while keeping the pattern of left-skewed, right-skewed and right-skewed. 
+
+#### 5) Visualizing the quantity/price relationship
+
+a.  Plot logmove (log quantity) vs. log(price) for each brand. For this one the appropriate second part of the ggplot command will be: `+ geom_point(aes(color = factor(var_name)))`
+
+    i.  What do insights can you derive that were not apparent before?
+    
+    - The scatterplot tell me a negative correlation between logmove and log(price): as loge move increases, log(price) decreases. The scatterplot also shows a possible linear relationship between logmove and log(price). 
+
+    ```{r, message=FALSE}
+    ggplot(oj, aes(logmove, log(price), alpha = 0.3)) + geom_point(aes(color = factor(brand)))
+    ggplot(oj, aes(logmove, log(price))) + geom_point(aes(color = factor(brand))) + 
+      facet_grid(. ~ brand)
+    ```
+
+#### 6) Estimating the relationship.
+
+a.  Do a regression of log quantity on log price (you can use the lm or glm function to do this). How well does the model fit? What is the elasticity, does it make sense?
+
+```{r regression, message=FALSE}
+reg1 <- lm(logmove ~ log(price), oj)
+reg1_sum <- summary(reg1)
+reg1_sum
+```
+
+- $R^2$ for this model is 0.2081, which means 20.81% of the variations in the dependent variable (logmove) could be explained by the independent variable (log(price)) in this model. The elasticity is -1.60131. Price elasticity measures the responsiveness of the quantity demanded of a product to a change in its price. The negative sign of the coefficient indicates an inverse relationship between price and quantity demanded, which makes sense. Besides, $1<|-1.60131|<\infty$ means orange juice is elastic. 
+
+b.  Now add in an intercept term for each brand (add brand to the regression), how do the results change? How should we interpret these coefficients?
+
+```{r, message=FALSE}
+# dummy variables; log(price) change in elasticity
+reg2 <- lm(logmove ~ log(price) + brand, oj)
+reg2_sum <- summary(reg2)
+reg2_sum
+```
+
+- The $R^{2}$ increases from 0.2081 to 0.3941, which means more of the variations could be explained by the new model. The coefficient for log(price) means the elasticity of dominicks products, for every one-unit increase in the log(price), logmove is estimated to decrease by approximately 3.13869 units. the coefficient for brandminute.maid and brandtropicana means minute.maid and tropicana has a higher estimated logmove compare to dominicks when the price is held constant. 
+
+c.  Now figure out a way to allow the elasticities to differ by brand. Search "interaction terms" and "dummy variables" if you don't remember this from econometrics. Note the estimate coefficients will "offset" the base estimates. What is the insights we get from this regression? What is the elasticity for each firm? Do the elasticities make sense?
+
+```{r dummy variables, message=FALSE}
+# with logs = elasticities; log(price): elasticity of dominicks
+# elasticity: quantity/price
+reg3 <- lm(logmove ~ log(price) * brand, oj)
+reg3_sum <- summary(reg3)
+reg3_sum
+```
+
+- The elasticity for dominicks is -3.37752, the elasticity for minute.maid is -3.32073, and the elasticity for tropicana is -2.71177. Those elasticities make sense because it matches the price and demand relationships of each individual brand. 
+
+#### 7) Impact of "featuring in store". The "feat" variable is an indicator variable which takes the value of one when a product is featured (e.g., like on an endcap display)
+
+a.  What is the average price and featured rate of each brand? Hint: use group_by and summarise within dplyr.
+
+```{r, message=FALSE}
+library(dplyr)
+mean <- oj %>%
+  group_by(brand) %>%
+  summarise(
+    average_price = mean(price),
+    featured_rate = mean(feat)
+    )
+
+knitr::kable(mean)
+```
+
+b.  How should incorporate the feature variable into our regression? Start with an additive formulation (e.g. feature impacts sales, but not through price).
+
+```{r incorporate feature, message=FALSE}
+reg4 <- lm(logmove ~ log(price) + brand + feat, oj)
+reg4_sum <- summary(reg4)
+reg4_sum
+```
+
+c.  Now run a model where features can impact sales and price sensitivity (e.g., the model we discussed in class).
+
+```{r features interact, message=FALSE}
+reg5 <- lm(logmove ~ log(price) * feat, oj)
+reg5_sum <- summary(reg5)
+reg5_sum
+```
+
+d.  Now run a model where each brand can have a different impact of being featured and a different impact on price sensitivity. Produce the regression results for this regression brand with brand level elasticities.
+
+```{r brand features interact, message=FALSE}
+reg6 <- lm(logmove ~ log(price) * brand * feat, oj)
+reg6_sum <- summary(reg6)
+reg6_sum
+```
+
+e.  Now add what you think are the most relevant sociodemographic controls and produce the regression results from that regression as well.\
+
+```{r as many as necessary for the regression, message=FALSE}
+reg7 <- lm(logmove ~ log(price) * brand * feat + AGE60 + EDUC + ETHNIC + INCOME + HHLARGE + WORKWOM + HVAL150 + SSTRDIST + SSTRVOL + CPDIST5 + CPWVOL5, oj)
+reg7_sum <- summary(reg7)
+reg7_sum
+```
+
+#### 8) Overall analysis
+
+a.  Based on your work, which brand has the most elastic demand, which as the least elastic?
+```{r}
+elastic_d <- reg3_sum$coefficients[[2]]
+elastic_t <- reg3_sum$coefficients[[2]] + reg3_sum$coefficients[[6]]
+elastic_m <- reg3_sum$coefficients[[2]] + reg3_sum$coefficients[[5]]
+```
+
+- Dominicks has the most elastic demand, tropicana has the least elastic demand. 
+
+b.  Do the average prices of each good match up with these insights?
+
+- Tropicana has the highest average price, therefore the least elastic demand. 
+
+c.  Take average prices for each brand. Use the elasticity pricing formula (you can use average values from your analysis above) to "back out" unit costs for each brand. Do the unit costs appear to be the same or different? What are your insights/reactions?
+
+$$-\frac{1}{\epsilon} = \frac{P-MC}{P}$$
+$$MC_{\text{dominicks}} = 1.735809- \frac{1}{-3.37753} \cdot 1.735809 = 2.249737$$
+$$MC_{\text{minute.maid}} = 1.735809- \frac{1}{-3.32073} \cdot 1.735809 = 2.258528$$
+$$MC_{\text{tropicana}} = 1.735809- \frac{1}{-2.711769} \cdot 1.735809 = 2.375911$$
+- Tropicana has the highest unit cost, it matches my insight from previous section (higher average price because of higher unit cost). Such result implies that the consumers of tropicana might be more loyal than dominicks and minute.maid. 
+
+#### 9) Let's return to the orange juice assignment and investigate how store demographics are related to demand.
+
+a.  Take one of the final models from (7) and add in the store demographics as linear features (e.g. + demo1 + demo2). Report your output.
+
+```{r}
+reg8 <- lm(logmove ~ log(price) * feat * brand + AGE60 + ETHNIC, oj)
+reg8_sum <- summary(reg8)
+reg8_sum
+```
+
+b.  What demographics significantly (t-value\>2) influence demand?
+
+- AGE60 and ETHNIC significantly influence demand. In section 7e I added all the sociodemographic variables to the regression, among those variables, AGE60 and ETHNIC has the highest t-values, therefore I added those two to my model. 
+
+c.  Use the predict command to determine how well the model predicts logmove and create a new variable called logmove_hat. To do so construct the "fair $r^{2}$" covered in class. What is the improvement relative to the model without the demographic features?
+
+```{r}
+logmove_hat <- predict(reg8, oj)
+fair_r2 <- (cor(logmove_hat, oj$logmove))^2
+```
+
+- The fair_r2 for model with demographic features is `r fair_r2`. Comparing to the model without the demographic features, the model with demographic features has 2.17% more variations of dependent variable could be explained by the independent variable. 
+
+d.  Rather than using fair $r^{2}$ lets now use a test set to determine which model gives the best out of sample prediction.
+
+    i.  Create a new dataframe which is a random subset of 80% of the data (look at sample_n from the dplyr package).
+    ii. Estimate the model with and without demographic characteristics. Construct MSE for the training and test set for the models.
+    iii. Compare the out of sample MSE for the models. Which is lower implying the model does a better job of fitting the data?
+
+```{r, message=FALSE}
+trainset <- sample_n(oj, 0.8 * nrow(oj), replace = FALSE)
+
+testset <- oj %>%
+  anti_join(trainset)
+
+reg_train_with <- lm(logmove ~ log(price) * feat * brand + AGE60 + ETHNIC, trainset)
+logmove_pred_with <- predict(reg_train_with, testset)
+
+reg_train_without <- lm(logmove ~ log(price) * feat * brand, trainset)
+logmove_pred_without <- predict(reg_train_without, testset)
+
+# regress on the train set, use test to predict; manually do the MSE
+MSE_with_demo <- mean((logmove_pred_with - testset$logmove)^2)
+MSE_without_demo <- mean((logmove_pred_without - testset$logmove)^2)
+```
+
+-   The model with demographic characteristics has a MSE of `r MSE_without_demo`, the model without demographic characteristics has a MSE of `r MSE_with_demo`. Based on my models, the models without demographic characteristics does a better job, probably because demographic characteristics have less influences on logmove than expected. 

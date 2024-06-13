@@ -1,0 +1,381 @@
+---
+title: "HW8"
+output: html_document
+date: "2023-11-29"
+author: "Lesley Xu"
+---
+#### 1.	Update your Double ML code to incorporate the regression tree classification you did to classify stores into three “leaves”.  
+
+a.	The code should start with classification (the regression tree) and then you should estimate a random forest/gradient boosted tree for stores in each leaf-brand-price and leaf-brand-quantity (18 forests, using our 3 leaf specification).  You’ll then create a 3x3 elasticity matrix for each leaf (so three matrices).  
+b.	Make sure you have a robust set of features (e.g., make and use a bunch!) for use in building the random forests/gradient boosted tree. 
+c.	Compare the residuals from one of the forests/gradient boosted trees to a simple OLS model with the same RHS variables using a scatter plot. Does the Forest/gradient boosted tree beat OLS?  
+
+```{r 1, message=FALSE, warning=FALSE}
+library(openxlsx)
+library(janitor)
+library(broom)
+library(knitr)
+library(tidyverse)
+library(xgboost)
+library(randomForest)
+library(DoubleML)
+library(rpart)
+library(rpart.plot)
+library(partykit)
+library(maptree)
+
+set.seed(487)
+setwd("/Users/lesleyxu/Desktop/Past courses/23AU/ECON 487")
+oj <- read.csv("oj.csv")
+
+oj <- oj %>%
+  clean_names() %>% 
+  mutate(log_price = log(price)) %>% 
+  arrange(week) %>% 
+  group_by(store, brand) %>% 
+  mutate(lag_price = ifelse(lag(week) + 1 == week, lag(log_price), NA)) %>% 
+  ungroup() %>% 
+  filter(!is.na(lag_price))
+  
+oj_tree <- oj %>% 
+  mutate(q = exp(logmove)) %>% 
+  group_by(store, week) %>% 
+  mutate(weighted_mean = weighted.mean(price, q)) %>% 
+  ungroup()
+
+oj_cv <- oj_tree %>%
+  mutate(id_val = row_number())
+
+oj_train <- oj_cv %>%
+  slice_sample(prop=.8)
+
+oj_test <- oj_cv %>%
+   anti_join(oj_train,
+            by = 'id_val')
+
+reg_tree_data <- oj_train %>% 
+  select(weighted_mean, age60:cpwvol5)
+
+show_tree <- function(cp_val){
+  fit<-rpart(as.formula(weighted_mean ~ .),
+           data=reg_tree_data,
+           method="anova",
+           cp=cp_val)
+  
+  draw.tree(fit)
+}
+
+show_tree(.007)
+```
+
+```{r, message=FALSE, warning=FALSE}
+
+
+fit <- rpart(as.formula(weighted_mean ~ .),
+           data=reg_tree_data,
+           method="anova",
+           cp=.007)
+
+oj_w_leaves <- oj_train %>% 
+  mutate(leaf = fit$where,
+         log_price = log(price))
+
+own_price_reg <- function(leaf_num){
+  df = oj_w_leaves %>% 
+    filter(leaf == leaf_num)
+  
+  reg <- lm(logmove ~ log_price*brand*feat,
+                    data = df)
+  
+  return(
+    tidy(reg) %>% 
+      filter(term == 'log_price') %>% 
+      pull(estimate)
+  )
+}
+
+sapply(sort(unique(oj_w_leaves$leaf)), own_price_reg)
+```
+
+```{r, message=FALSE, warning=FALSE}
+own_quantity_reg <- function(leaf_num){
+  df = oj_w_leaves %>% 
+    filter(leaf == leaf_num)
+  
+  reg <- lm(log_price ~ logmove*brand*feat,
+                    data = df)
+  
+  return(
+    tidy(reg) %>% 
+      filter(term == 'logmove') %>% 
+      pull(estimate)
+  )
+}
+
+sapply(sort(unique(oj_w_leaves$leaf)), own_quantity_reg)
+```
+
+```{r models, message=FALSE, warning=FALSE}
+wide_data <- oj_train %>% 
+  mutate(log_price = log(price)) %>% 
+  select(store, week, brand, log_price, feat) %>% 
+  pivot_longer(
+    log_price
+  ) %>% 
+  mutate(name = str_c(name, brand, sep = '_')) %>% 
+  select(-brand) %>% 
+  pivot_wider(
+    id_cols = c(store,week), 
+    names_from = name, 
+    values_from = value
+  )
+
+cross_price_data <- oj_train %>% 
+  select(store, week, logmove, brand, feat) %>% 
+  left_join(wide_data,
+            by = c('store', 'week')) %>% 
+  left_join(oj_w_leaves %>% 
+              distinct(store, week, leaf),
+            by = c('store', 'week'))
+
+# write a regression and formatting function
+
+format_reg <- function(brand_var, df){
+  reg <- lm(logmove ~ log_price_tropicana*feat + log_price_dominicks*feat + log_price_minute.maid*feat,
+            data = df %>% filter(brand == brand_var))
+  
+  output <- reg %>% 
+    tidy() %>% 
+    filter(term %in% str_c('log_price_', unique(oj$brand))) %>% 
+    select(term, estimate) %>% 
+    mutate(q_var = brand_var) %>% 
+    pivot_wider(id_cols = q_var,
+                names_from = term,
+                values_from = estimate) %>% 
+    select(q_var, log_price_dominicks, log_price_minute.maid, log_price_tropicana)
+  
+  return(output)
+}
+
+# to compute the elasticities, we'll write a function that takes as itsargument
+# the leaf. for each leaf, it runs three regressions, stacks the results into a matrix
+# and returns the matrix.
+
+elast_mat <- function(leaf_num){
+  df <- cross_price_data %>% 
+    filter(leaf == leaf_num) 
+  
+  output <- bind_rows(
+    lapply(
+      unique(oj$brand),
+      format_reg,
+      df
+    )
+  ) %>% 
+  arrange(q_var) %>% 
+  kable()
+  
+  return(output)
+}
+```
+
+#### 2.	Suppose a firm offers a free trial for two months and has acquisition rate of 0.3, a conversion rate of 0.5, nobody buys the premium version directly (buy high rate=0), they make $10 per month if a customer converts, marginal costs per month are $5 and the average customer lifetime is 12 months. Suppose there are 1 million customers in their market.
+
+a.	What is their total revenue currently?
+$$[N \cdot a \cdot (1-c)] \cdot m_{l} + [(N \cdot a \cdot c) + (N\cdot b)] \cdot p_{h}$$
+$$A = 0.3 \cdot 1,000,000 = 300,000$$
+$$C = 300,000 \cdot 0.5 = 150,000$$
+$$150,000 \cdot 10 \cdot 12 = 18,000,000$$
+
+b.	What are total costs (assume FC=0)?
+
+$$Fixed + mc \cdot [N \cdot (a+b)] = 0 + 5 \cdot 300,000 \cdot 12 \cdot 5 = 9,000,000$$
+c.	Based on this, what is gross margin (e.g., profits not accounting for fixed costs). Suppose fixed costs are 1 million. What is net margin (overall profits). 
+
+$$\text{Gross Margin: }18,000,000 - 9,000,000 = 9,000,000$$
+$$\text{Net Margin: }9,000,000 - 1,000,000 = 8,000,000$$
+d.	They are considering reducing the length of the free trial to 1 month. Their data science team estimates the conversion rate will drop to 0.45 and the acquisition rate will drop to 0.28, what is the new revenue, new costs, and gross margins? Should they make the change?
+
+$$A' = 0.28 \cdot 1,000,000 = 280,000$$
+$$C' = 280,000 \cdot 0.45 = 126,000$$
+$$\text{Revenue}' = 126,000 \cdot 10 \cdot 12 = 15,120,000$$
+$$\text{Cost}' = 0 + 126,000 \cdot 12 \cdot 5 = 7,560,000$$
+$$\text{Gross Margin}' = 15,120,000 - 7,560,000 = 7,560,000$$
+- The Gross Margin decreases as the free trial duration, conversion rate, and acquisition rate decreases. It is expected. 
+
+
+#### 3.	Read the Online retail data into R. This is real anonymized purchase level data from a wholesaler in the UK.   
+```{r 3, message=FALSE, warning=FALSE}
+or <- read.xlsx("/Users/lesleyxu/Desktop/ECON 487/online_retail.xlsx")
+or$InvoiceDate <- convertToDate(or$InvoiceDate, origin = "1900-01-01")
+```
+
+a.	Calculate summary statistics including total number of unique customers, total number of unique countries, total revenue by country and average revenue by customer-country.  
+```{r 3a, message=FALSE, warning=FALSE}
+unique_customers <- length(unique(or$CustomerID))
+unique_countries <- length(unique(or$Country))
+cat("The total number of unique customers is:", unique_customers, "\n")
+cat("The total number of unique countries is:", unique_countries, "\n")
+```
+
+
+```{r,message=FALSE, warning=FALSE}
+or$Revenue <- (or$Quantity * or$UnitPrice)
+revenue_by_country <- or %>%
+  group_by(Country) %>%
+  summarise(total_revenue = sum(Revenue),
+            total_sales = sum(n_distinct(InvoiceNo))) %>%
+  ungroup() %>%
+  arrange(desc(total_revenue))
+
+revenue_by_country %>%
+  slice_head(n=10) %>%
+  kable()
+
+average_by_customer_country <- or %>%
+  group_by(CustomerID, Country) %>%
+  summarise(average_revenue = mean(Revenue),
+            average_sales = mean(n_distinct(InvoiceNo))) %>%
+  ungroup() %>%
+  arrange(desc(average_revenue)) 
+
+average_by_customer_country %>%
+  slice_head(n=10) %>%
+  kable()
+```
+
+
+b.	In addition to averages plot the distribution of total revenue by customer using ggplot2 (Plotting distributions (ggplot2) (cookbook-r.com)). 
+```{r 3b, message=FALSE, warning=FALSE}
+revenue_by_customer <- or %>%
+  group_by(CustomerID) %>%
+  summarise(total_revenue = sum(Revenue))
+
+ggplot(revenue_by_customer) + 
+  geom_histogram(aes(x=total_revenue), fill = 'deepskyblue3')
+```
+
+c.	What percent of customers account for 80% of total revenue over the sample (Hint: calculate customer-level revenue, as above, sort from least to most revenue, use the cumsum() function in R, and use the output to compare to total revenue to get the percentiles).
+```{r 3c, message=FALSE, warning=FALSE}
+total_revenue_by_customer <- or %>%
+  group_by(CustomerID) %>%
+  summarise(total_revenue = sum(Revenue)) %>%
+  arrange(total_revenue)
+total_revenue_by_customer <- total_revenue_by_customer %>%
+  mutate(total_revenue_incre = cumsum(total_revenue_by_customer$total_revenue))
+
+index <- which.max(total_revenue_by_customer$total_revenue_incre >= 
+                     0.8 * sum(total_revenue_by_customer$total_revenue))
+                     top_customers <- total_revenue_by_customer[1:index, ]
+percent_top_customers <- (sum(top_customers$total_revenue) / sum(total_revenue_by_customer$total_revenue)) * 100
+cat("Percentage of customers accounting for 80% of total revenue:", percent_top_customers, "%\n")
+```
+
+d.	Define customer churn as having no purchases for three months. What is the monthly churn rate? Of customers who churn based upon that definition, what share of them purchase again?
+```{r 3d, message=FALSE, warning=FALSE}
+last_purchase_date <- or %>%
+  group_by(CustomerID) %>%
+  mutate(first_purchase = min(InvoiceDate),
+         last_purchase = max(InvoiceDate),
+         threshold = first_purchase + months(3))
+
+
+churned_customers <- last_purchase_date %>%
+  filter(last_purchase < threshold) %>%
+  distinct(CustomerID)
+
+monthly_churn_rate <- nrow(churned_customers) / n_distinct(or$CustomerID)
+
+churned_and_returned <- last_purchase_date %>%
+  filter(CustomerID %in% churned_customers$CustomerID) %>%
+  group_by(CustomerID) %>%
+  filter(last_purchase > threshold)
+
+share_churned_and_returned <- nrow(churned_and_returned) / nrow(churned_customers)
+
+cat("Monthly churn rate:", round(monthly_churn_rate, 4), "\n")
+cat("Share of churned customers who purchase again:", share_churned_and_returned, "\n")
+```
+
+e.	What is the LTV of a customer (in terms of revenue)?
+```{r 3e, message=FALSE, warning=FALSE}
+
+```
+
+f.	Can you identify returns in this data? If so, what percentage of orders are returned, and what fraction of total revenue is returned?
+```{r 3f, message=FALSE, warning=FALSE}
+
+```
+
+#### 4.	How does time of year impact order values?
+
+a.	Summarize average number of sales per day and average revenue per day by month and year.
+b.	Plot each on its own graph.
+```{r 4, message=FALSE, warning=FALSE}
+or_by_month_year <- or %>%
+  mutate(Month = format(InvoiceDate, "%m"),
+         Year = format(InvoiceDate, "%Y"),
+         YearMonth = format(InvoiceDate, "%Y-%m"))
+```
+
+```{r 4b, message=FALSE, warning=FALSE}
+average_revenue_per_day <- or_by_month_year %>%
+  group_by(YearMonth, InvoiceDate) %>%
+  summarise(total_revenue = sum(Revenue)) 
+
+average_revenue_per_day %>%
+  group_by(YearMonth) %>%
+  summarise(avg_revenue = mean(total_revenue)) %>%
+  kable()
+
+average_sales_per_day <- or_by_month_year %>%
+  group_by(YearMonth, InvoiceDate) %>%
+  summarise(total_sales = sum(n_distinct(InvoiceNo)))
+
+average_sales_per_day %>%
+  group_by(YearMonth) %>%
+  summarise(avg_sales = mean(total_sales)) %>%
+  kable()
+```
+
+
+
+c.	The CEO of the company explains to you that they have the best ad strategy in the business. They only advertise close to the holidays (November and December) and those ads result in huge spikes in sales compared to when they’re not advertising. Do you agree with her? What would your response be?
+
+- I think there is no absolute answer to this strategy. According to the sample data, September 2011 actually has the highest average revenue per day. By intuition advertise close to the holidays sounds reasonable, but during holidays the user base is already larger. Therefore, I think advertise on months besides holidays would help increase the user base. 
+
+#### 5.	We want to divide the customers into cohorts.
+
+a.	Sort customers into “cohorts” based on the month and year of their earliest purchase (so all customers who first purchased today would be in a November 2023 cohort. 
+```{r 5a, message=FALSE, warning=FALSE}
+library(cohorts)
+cohort_or <- or_by_month_year %>%
+  cohort_table_month(CustomerID, InvoiceDate) %>%
+  shift_left()
+
+cohort_or %>%
+  kable()
+```
+
+```{r}
+cohort_or_pct <- or_by_month_year %>%
+  cohort_table_month(CustomerID, InvoiceDate) %>%
+  shift_left_pct()
+
+cohort_or_pct %>%
+  kable()
+
+cohort_mannual <- or_by_month_year %>%
+  group_by(CustomerID) %>%
+  summarise(CohortGroup = min(YearMonth)) %>%
+  group_by(CohortGroup) %>%
+  summarise(counts = sum(n_distinct(CustomerID)))
+```
+
+b.	How do metrics like number of orders, size of orders, number of returns, and size of returns vary across the cohorts?
+
+- As the cohort group id increases, the number of orders, the number of returns, and size of returns are fluctuating and overall in a decreasing trend. However, they tend to converge to a stable level at the end of the sample. 
+
+c.	Using your evidence from (a) and (b), discuss the intuition of introducing subscription levels and what the impact on each cohort would be. 
+
+- Introducing subscription levels would positively influence earlier cohorts as the number of orders decreases slower. 
